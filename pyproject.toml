@@ -17,7 +17,9 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = []
+packages = [
+    "proveskit_ground_station",
+]
 
 [tool.ruff.format]
 # Use `\n` line endings for all files
