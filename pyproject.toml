@@ -24,7 +24,7 @@ packages = []
 line-ending = "lf"
 
 [tool.pyright]
-include = ["pysquared"]
+include = ["ground_station.py"]
 exclude = [
     "**/__pycache__",
     ".venv",
