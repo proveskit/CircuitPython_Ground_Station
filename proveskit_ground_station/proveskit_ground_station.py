@@ -25,7 +25,7 @@ class GroundStation:
     def listen(self):
         try:
             while True:
-                b = self._packet_manager.listen(3)
+                b = self._packet_manager.listen(1)
                 if b is not None:
                     self._log.info(
                         message="Received response", response=b.decode("utf-8")
@@ -37,12 +37,12 @@ class GroundStation:
         try:
             cmd_selection = input(
                 """
-            ====================================================
-            | Select command to send                           |
-            | 1: Reset                                         |
-            | 2: Change radio modulation                       |
-            | 3: Send joke                                     |
-            ====================================================
+            ===============================
+            | Select command to send      |
+            | 1: Reset                    |
+            | 2: Change radio modulation  |
+            | 3: Send joke                |
+            ===============================
             """
             )
             if cmd_selection not in ["1", "2", "3"]:
@@ -75,7 +75,7 @@ class GroundStation:
                 self._packet_manager.send(json.dumps(message).encode("utf-8"))
 
                 # Listen for ACK response
-                b = self._packet_manager.listen(5)
+                b = self._packet_manager.listen(1)
                 if b is None:
                     self._log.info("No response received, retrying...")
                     continue
@@ -90,7 +90,7 @@ class GroundStation:
                 self._log.info("Received ACK")
 
                 # Now listen for the actual response
-                b = self._packet_manager.listen(5)
+                b = self._packet_manager.listen(1)
                 if b is None:
                     self._log.info("No response received, retrying...")
                     continue
@@ -105,16 +105,16 @@ class GroundStation:
         while True:
             print(
                 """
-            ====================================================
-            |                                                  |
-            | WELCOME!                                         |
-            | PROVESKIT Ground Station                         |
-            |                                                  |
-            ====================================================
-            | Please Select Your Mode                          |
-            | 'A': Listen only                                 |
-            | 'B': Send/Listen                                 |
-            ====================================================
+            =============================
+            |                           |
+            | WELCOME!                  |
+            | PROVESKIT Ground Station  |
+            |                           |
+            =============================
+            | Please Select Your Mode   |
+            | 'A': Listen               |
+            | 'B': Send                 |
+            =============================
             """
             )
 
