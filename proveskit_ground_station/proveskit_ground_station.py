@@ -7,7 +7,7 @@ from pysquared.hardware.radio.packetizer.packet_manager import PacketManager
 from pysquared.logger import Logger, LogLevel
 
 
-class RadioTest:
+class GroundStation:
     def __init__(
         self,
         logger: Logger,
@@ -108,7 +108,7 @@ class RadioTest:
             ====================================================
             |                                                  |
             | WELCOME!                                         |
-            | Pysquared Radio Test                             |
+            | PROVESKIT Ground Station                         |
             |                                                  |
             ====================================================
             | Please Select Your Mode                          |
