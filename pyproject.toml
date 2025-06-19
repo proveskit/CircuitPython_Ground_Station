@@ -1,0 +1,33 @@
+[project]
+name = "PROVESKIT_Ground_Station"
+version = "1.0.0"
+description = "PROVESKIT Ground Station Software"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pysquared @ git+https://github.com/proveskit/pysquared@ngay-new-state-of-health",
+]
+
+[dependency-groups]
+dev = [
+    "adafruit-circuitpython-typing==1.12.1",
+    "circuitpython-stubs==9.2.8",
+    "pre-commit==4.2.0",
+    "pyright[nodejs]==1.1.402",
+]
+
+[tool.setuptools]
+packages = []
+
+[tool.ruff.format]
+# Use `\n` line endings for all files
+line-ending = "lf"
+
+[tool.pyright]
+include = ["pysquared"]
+exclude = [
+    "**/__pycache__",
+    ".venv",
+    ".git",
+]
+reportMissingModuleSource = false
