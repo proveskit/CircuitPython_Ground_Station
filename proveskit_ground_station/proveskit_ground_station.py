@@ -50,7 +50,7 @@ class GroundStation:
                 return
 
             message: dict[str, object] = {
-                "name": self.satellite_name,
+                "name": self._config.cubesat_name,
                 "password": self._config.super_secret_code,
             }
 
@@ -103,11 +103,6 @@ class GroundStation:
             self._log.debug("Keyboard interrupt received, exiting send mode.")
 
     def run(self):
-        msg = f"Name of the Satellite to connect to (default: {self._config.cubesat_name}): "
-        self.satellite_name = input(msg)
-        if not self.satellite_name:
-            self.satellite_name = self._config.cubesat_name
-
         while True:
             print(
                 """
