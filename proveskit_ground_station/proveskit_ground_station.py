@@ -5,7 +5,7 @@ import supervisor
 from pysquared.cdh import CommandDataHandler
 from pysquared.config.config import Config
 from pysquared.hardware.radio.packetizer.packet_manager import PacketManager
-from pysquared.logger import Logger, LogLevel
+from pysquared.logger import Logger
 
 
 class GroundStation:
@@ -18,7 +18,6 @@ class GroundStation:
     ):
         self._log = logger
         self._log.colorized = True
-        self._log._log_level = LogLevel.INFO
         self._config = config
         self._packet_manager = packet_manager
         self._cdh = cdh
