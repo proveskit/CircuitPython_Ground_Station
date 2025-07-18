@@ -71,7 +71,7 @@ class GroundStation:
             message["command"] = self._cdh.command_reset
         elif cmd_selection == "2":
             message["command"] = self._cdh.command_change_radio_modulation
-            modulation = input("Enter new radio modulation [FSK | LoRa]: ")
+            modulation = input("Enter new radio modulation [FSK | LoRa | SBand]: ")
             message["args"] = [modulation]
         elif cmd_selection == "3":
             message["command"] = self._cdh.command_send_joke
