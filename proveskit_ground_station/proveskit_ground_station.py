@@ -129,7 +129,7 @@ class GroundStation:
     def ask_for_leaderboard(main_callsign=None):
         if main_callsign is None:
             main_callsign = config.radio.main_sat_license
-        logger.info(f"Requesting leaderboard from {main_callsign}...")
+        self.logger.info(f"Requesting leaderboard from {main_callsign}...")
         message = {
             "current_time": time.monotonic(),
             "callsign": main_callsign,
@@ -137,24 +137,24 @@ class GroundStation:
         }
         encoded_message = json.dumps(message, separators=(",", ":")).encode("utf-8")
         if not packet_manager.send(encoded_message):
-            logger.warning(f"Failed to send leaderboard request to {main_callsign}")
+            self.logger.warning(f"Failed to send leaderboard request to {main_callsign}")
             return
-        logger.info(f"Listening for response from {main_callsign} for 30 seconds.")
+        self.logger.info(f"Listening for response from {main_callsign} for 30 seconds.")
         command = ""
         start_time = time.monotonic()
         while command != RETURN_LEADERBOARD_MAIN and time.monotonic() < start_time + 30:
-            logger.info(f"Listening... {time.monotonic()}")
+            self.logger.info(f"Listening... {time.monotonic()}")
             received_message = packet_manager.listen(1)
             if not received_message:
                 continue
             try:
                 decoded_message = json.loads(received_message.decode("utf-8"))
             except Exception as e:
-                logger.warning(f"Failed to decode message: {e}")
+                self.logger.warning(f"Failed to decode message: {e}")
                 continue
             command = decoded_message.get("command")
-            logger.info(f"Received: {received_message}")
-            logger.info(f"Command: {command}")
+            self.logger.info(f"Received: {received_message}")
+            self.logger.info(f"Command: {command}")
         if command == RETURN_LEADERBOARD_MAIN:
             payload = decoded_message.get("leaderboard", {})
             print("LEADERBOARD:")
@@ -165,7 +165,7 @@ class GroundStation:
             else:
                 print("Leaderboard is empty.")
         else:
-            logger.warning("Did not receive leaderboard response in time.")
+            self.logger.warning("Did not receive leaderboard response in time.")
 
 
     def ask_to_update(name):
@@ -177,9 +177,9 @@ class GroundStation:
         }
         encoded_message = json.dumps(message, separators=(",", ":")).encode("utf-8")
         if not packet_manager.send(encoded_message):
-            logger.warning("Failed to send leaderboard request")
+            self.logger.warning("Failed to send leaderboard request")
         else:  # TODO have cubes say who sent them :)
-            logger.info("name sent! out in the world")
+            self.logger.info("name sent! out in the world")
 
     def run(self):
         while True:
