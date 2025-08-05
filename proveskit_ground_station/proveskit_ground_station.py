@@ -7,6 +7,9 @@ from pysquared.config.config import Config
 from pysquared.hardware.radio.packetizer.packet_manager import PacketManager
 from pysquared.logger import Logger
 
+UPDATE_LEADERBOARD = "update_leaderboard"
+SEND_LEADERBOARD_MAIN = "send_leaderboard_main"
+RETURN_LEADERBOARD_MAIN = "return_leaderboard_main"
 
 class GroundStation:
     def __init__(
@@ -48,6 +51,8 @@ class GroundStation:
             | 1: Reset                    |
             | 2: Change radio modulation  |
             | 3: Send joke                |
+            | 4: Ask for leaderboard      |
+            | 5: Update leaderboard       |
             ===============================
             """
             )
@@ -58,8 +63,16 @@ class GroundStation:
             self._log.debug("Keyboard interrupt received, exiting send mode.")
 
     def handle_input(self, cmd_selection):
-        if cmd_selection not in ["1", "2", "3"]:
+        if cmd_selection not in ["1", "2", "3", "4", "5"]:
             self._log.warning("Invalid command selection. Please try again.")
+            return
+
+        if cmd_selection == "4":
+            self.ask_for_leaderboard()
+            return
+        elif cmd_selection == "5":
+            name = input("Enter your name for the leaderboard: ")
+            self.ask_to_update(name)
             return
 
         message: dict[str, object] = {
@@ -112,6 +125,58 @@ class GroundStation:
             self._log.info("Received response", response=b.decode("utf-8"))
             break
 
+    def ask_for_leaderboard(self, main_cube_id="Main"):
+        self._log.info(f"Requesting leaderboard from {main_cube_id}...")
+        message = {
+            "current_time": time.monotonic(),
+            "cube_id": main_cube_id,
+            "command": SEND_LEADERBOARD_MAIN,
+        }
+        encoded_message = json.dumps(message, separators=(",", ":")).encode("utf-8")
+        if not self._packet_manager.send(encoded_message):
+            self._log.warning(f"Failed to send leaderboard request to {main_cube_id}")
+            return
+        self._log.info(f"Listening for response from {main_cube_id} for 30 seconds.")
+        command = ""
+        start_time = time.monotonic()
+        while command != RETURN_LEADERBOARD_MAIN and time.monotonic() < start_time + 30:
+            self._log.info(f"Listening... {time.monotonic()}")
+            received_message = self._packet_manager.listen(1)
+            if not received_message:
+                continue
+            try:
+                decoded_message = json.loads(received_message.decode("utf-8"))
+            except Exception as e:
+                self._log.warning(f"Failed to decode message: {e}")
+                continue
+            command = decoded_message.get("command")
+            self._log.info(f"Received: {received_message}")
+            self._log.info(f"Command: {command}")
+        if command == RETURN_LEADERBOARD_MAIN:
+            payload = decoded_message.get("leaderboard", {})
+            print("LEADERBOARD:")
+            if payload:
+                sorted_leaderboard = sorted(payload.items(), key=lambda kv: (-kv[1], kv[0]))
+                for i, (name, score) in enumerate(sorted_leaderboard, 1):
+                    print(f"{i}. {name}: {score}")
+            else:
+                print("Leaderboard is empty.")
+        else:
+            self._log.warning("Did not receive leaderboard response in time.")
+
+    def ask_to_update(self, name):
+        message = {
+            "current_time": time.monotonic(),
+            "command": UPDATE_LEADERBOARD,
+            "cube_id": "any",
+            "name": name,
+        }
+        encoded_message = json.dumps(message, separators=(",", ":")).encode("utf-8")
+        if not self._packet_manager.send(encoded_message):
+            self._log.warning("Failed to send leaderboard request")
+        else:  # TODO have cubes say who sent them :)
+            self._log.info("name sent! out in the world")
+
     def run(self):
         while True:
             print(
@@ -139,5 +204,6 @@ class GroundStation:
                 self.listen()
             elif device_selection == "b":
                 self.send_receive()
-
             time.sleep(1)
+
+  
