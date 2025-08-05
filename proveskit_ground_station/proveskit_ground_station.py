@@ -128,7 +128,7 @@ class GroundStation:
     
     def ask_for_leaderboard(self, main_callsign=None):
         if main_callsign is None:
-            main_callsign = "Main"
+            main_callsign = config.radio.main_callsign
         self._log.info(f"Requesting leaderboard from {main_callsign}...")
         message = {
             "current_time": time.monotonic(),
