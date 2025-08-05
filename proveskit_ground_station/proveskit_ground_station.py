@@ -125,33 +125,36 @@ class GroundStation:
             self._log.info("Received response", response=b.decode("utf-8"))
             break
 
-    def ask_for_leaderboard(self, main_cube_id="Main"):
-        self._log.info(f"Requesting leaderboard from {main_cube_id}...")
+    
+    def ask_for_leaderboard(main_callsign=None):
+        if main_callsign is None:
+            main_callsign = config.radio.main_sat_license
+        logger.info(f"Requesting leaderboard from {main_callsign}...")
         message = {
             "current_time": time.monotonic(),
-            "cube_id": main_cube_id,
+            "callsign": main_callsign,
             "command": SEND_LEADERBOARD_MAIN,
         }
         encoded_message = json.dumps(message, separators=(",", ":")).encode("utf-8")
-        if not self._packet_manager.send(encoded_message):
-            self._log.warning(f"Failed to send leaderboard request to {main_cube_id}")
+        if not packet_manager.send(encoded_message):
+            logger.warning(f"Failed to send leaderboard request to {main_callsign}")
             return
-        self._log.info(f"Listening for response from {main_cube_id} for 30 seconds.")
+        logger.info(f"Listening for response from {main_callsign} for 30 seconds.")
         command = ""
         start_time = time.monotonic()
         while command != RETURN_LEADERBOARD_MAIN and time.monotonic() < start_time + 30:
-            self._log.info(f"Listening... {time.monotonic()}")
-            received_message = self._packet_manager.listen(1)
+            logger.info(f"Listening... {time.monotonic()}")
+            received_message = packet_manager.listen(1)
             if not received_message:
                 continue
             try:
                 decoded_message = json.loads(received_message.decode("utf-8"))
             except Exception as e:
-                self._log.warning(f"Failed to decode message: {e}")
+                logger.warning(f"Failed to decode message: {e}")
                 continue
             command = decoded_message.get("command")
-            self._log.info(f"Received: {received_message}")
-            self._log.info(f"Command: {command}")
+            logger.info(f"Received: {received_message}")
+            logger.info(f"Command: {command}")
         if command == RETURN_LEADERBOARD_MAIN:
             payload = decoded_message.get("leaderboard", {})
             print("LEADERBOARD:")
@@ -162,20 +165,21 @@ class GroundStation:
             else:
                 print("Leaderboard is empty.")
         else:
-            self._log.warning("Did not receive leaderboard response in time.")
+            logger.warning("Did not receive leaderboard response in time.")
 
-    def ask_to_update(self, name):
+
+    def ask_to_update(name):
         message = {
             "current_time": time.monotonic(),
             "command": UPDATE_LEADERBOARD,
-            "cube_id": "any",
+            "callsign": "any",
             "name": name,
         }
         encoded_message = json.dumps(message, separators=(",", ":")).encode("utf-8")
-        if not self._packet_manager.send(encoded_message):
-            self._log.warning("Failed to send leaderboard request")
+        if not packet_manager.send(encoded_message):
+            logger.warning("Failed to send leaderboard request")
         else:  # TODO have cubes say who sent them :)
-            self._log.info("name sent! out in the world")
+            logger.info("name sent! out in the world")
 
     def run(self):
         while True:
