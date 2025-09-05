@@ -17,7 +17,7 @@ class GroundStation:
         cdh: CommandDataHandler,
     ):
         self._log = logger
-        self._log.colorized = True
+        self._log._colorized = True
         self._config = config
         self._packet_manager = packet_manager
         self._cdh = cdh
@@ -37,8 +37,7 @@ class GroundStation:
                     )
 
         except KeyboardInterrupt:
-            self._log.debug(
-                "Keyboard interrupt received, exiting listen mode.")
+            self._log.debug("Keyboard interrupt received, exiting listen mode.")
 
     def send_receive(self):
         try:
@@ -60,9 +59,9 @@ class GroundStation:
 
     def handle_input(self, cmd_selection):
         if cmd_selection not in [
-                self._cdh.command_reset,
-                self._cdh.command_change_radio_modulation,
-                self._cdh.command_send_joke
+            self._cdh.command_reset,
+            self._cdh.command_change_radio_modulation,
+            self._cdh.command_send_joke,
         ]:
             self._log.warning("Invalid command selection. Please try again.")
             return
