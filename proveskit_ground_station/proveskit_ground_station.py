@@ -17,7 +17,7 @@ class GroundStation:
         cdh: CommandDataHandler,
     ):
         self._log = logger
-        self._log.colorized = True
+        self._log._colorized = True
         self._config = config
         self._packet_manager = packet_manager
         self._cdh = cdh
@@ -58,7 +58,11 @@ class GroundStation:
             self._log.debug("Keyboard interrupt received, exiting send mode.")
 
     def handle_input(self, cmd_selection):
-        if cmd_selection not in ["1", "2", "3"]:
+        if cmd_selection not in [
+            self._cdh.command_reset,
+            self._cdh.command_change_radio_modulation,
+            self._cdh.command_send_joke,
+        ]:
             self._log.warning("Invalid command selection. Please try again.")
             return
 
@@ -67,13 +71,13 @@ class GroundStation:
             "password": self._config.super_secret_code,
         }
 
-        if cmd_selection == "1":
+        if cmd_selection == self._cdh.command_reset:
             message["command"] = self._cdh.command_reset
-        elif cmd_selection == "2":
+        elif cmd_selection == self._cdh.command_change_radio_modulation:
             message["command"] = self._cdh.command_change_radio_modulation
             modulation = input("Enter new radio modulation [FSK | LoRa]: ")
             message["args"] = [modulation]
-        elif cmd_selection == "3":
+        elif cmd_selection == self._cdh.command_send_joke:
             message["command"] = self._cdh.command_send_joke
 
         while True:
